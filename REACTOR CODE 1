@@ -1,6 +1,10 @@
 import time
 import uuid
 from decimal import Decimal, getcontext
+import http.server
+import socketserver
+import sys
+import io
 
 # --- SYSTEM CONFIGURATION ---
 # Set Precision for 'Hyper Nova' Scale (High precision required for V^4)
@@ -132,27 +136,77 @@ class USAWF_HyperNova_Reactor:
         print(f"SOVEREIGN WEALTH FUND: ${self.wealth_fund:,.2f}")
 
 # --- PART 4: THE LAUNCH SEQUENCE ---
-print("INITIALIZING USAWF DIGITAL OPERATING SYSTEM...")
-# 1. Initialize the Hardware (The Mesh)
-Global_Mesh = Private_Mesh_Network()
-# 2. Simulate 'Top 5' Nodes Joining (The Gravity Well)
-# Creating the $2 Trillion Equity Dump via Nodes
-node_amazon = SCADA_Node("AMZN_Prime", "1000000000000") # $1T
-node_chase = SCADA_Node("JPM_Chase", "1000000000000") # $1T
-Global_Mesh.add_node(node_amazon)
-Global_Mesh.add_node(node_chase)
-print(f" > NETWORK STATUS: {len(Global_Mesh.nodes)} Major Nodes Online.")
-print(f" > MESH TOPOLOGY: Fully Connected (Latency -> 0)")
-# 3. Initialize the Engine (The Reactor)
-# Market Cap set to 10% safety limit
-Reactor = USAWF_HyperNova_Reactor(Global_Mesh, "0.10")
-# 4. RUN THE SYSTEM
-for i in range(3):
-    time.sleep(1)
-    # Simulate a transaction to prove signal relay
-    node_amazon.send_capital(node_chase, "500000000")
-    # Run the Reactor Logic
-    m, r, y, v = Reactor.run_cycle()
-    Reactor.status_report(m, r, v)
-print("\n--- SYSTEM STABLE ---")
-print("The SCADA Mesh is feeding live Mass into the Hyper-Nova Reactor.")
+def run_simulation_logic():
+    # Capture output to return to browser
+    output_buffer = io.StringIO()
+    original_stdout = sys.stdout
+    sys.stdout = output_buffer
+
+    try:
+        print("INITIALIZING USAWF DIGITAL OPERATING SYSTEM...")
+        # 1. Initialize the Hardware (The Mesh)
+        Global_Mesh = Private_Mesh_Network()
+        # 2. Simulate 'Top 5' Nodes Joining (The Gravity Well)
+        # Creating the $2 Trillion Equity Dump via Nodes
+        node_amazon = SCADA_Node("AMZN_Prime", "1000000000000") # $1T
+        node_chase = SCADA_Node("JPM_Chase", "1000000000000") # $1T
+        Global_Mesh.add_node(node_amazon)
+        Global_Mesh.add_node(node_chase)
+        print(f" > NETWORK STATUS: {len(Global_Mesh.nodes)} Major Nodes Online.")
+        print(f" > MESH TOPOLOGY: Fully Connected (Latency -> 0)")
+        # 3. Initialize the Engine (The Reactor)
+        # Market Cap set to 10% safety limit
+        Reactor = USAWF_HyperNova_Reactor(Global_Mesh, "0.10")
+        # 4. RUN THE SYSTEM
+        for i in range(3):
+            # NOTE: Optional pacing-only delay for log output; not part of the Deas Equation physics model.
+            # time.sleep(1)  # Disabled to keep HTTP/browser response fast; simulation assumes Drag/latency -> 0.
+            # Simulate a transaction to prove signal relay
+            node_amazon.send_capital(node_chase, "500000000")
+            # Run the Reactor Logic
+            m, r, y, v = Reactor.run_cycle()
+            Reactor.status_report(m, r, v)
+        print("\n--- SYSTEM STABLE ---")
+        print("The SCADA Mesh is feeding live Mass into the Hyper-Nova Reactor.")
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        sys.stdout = original_stdout
+    
+    return output_buffer.getvalue()
+
+# Web Server Configuration to fix browser loading
+PORT = 8000
+class SimulationHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/favicon.ico':
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain; charset=utf-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        
+        result = run_simulation_logic()
+        data = result.encode('utf-8')
+        
+        self.send_header('Content-Length', str(len(data)))
+        self.end_headers()
+        try:
+            self.wfile.write(data)
+        except Exception as write_error:
+            # Log write failures for debugging; headers are already sent at this point.
+            print(f"Error writing response for path {self.path}: {write_error}", file=sys.stderr)
+
+if __name__ == "__main__":
+    print(f"Starting Reactor Server on port {PORT}...")
+    print(f"Open your browser to the forwarded port {PORT} to view the simulation.")
+    print(f"Note: If you see a 401 error, ensure the port visibility is set to 'Public' in the Ports tab.")
+    
+    # Allow address reuse to prevent 'Address already in use' errors on restart
+    socketserver.TCPServer.allow_reuse_address = True
+    
+    # Binding to 0.0.0.0 is required for container port forwarding to work correctly
+    with socketserver.TCPServer(("0.0.0.0", PORT), SimulationHandler) as httpd:
+        httpd.serve_forever()
