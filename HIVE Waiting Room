@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USAWF - Join the Mass</title>
+    <style>
+        /* --- VISUAL PHYSICS ENGINE (CSS) --- */
+        :root {
+            --neon-blue: #00f3ff;
+            --hive-gold: #ffd700;
+            --void-black: #0a0a0a;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--void-black);
+            color: white;
+            font-family: 'Courier New', Courier, monospace; /* Technical/Code aesthetic */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* MASS COUNTER - The "Gravity Well" */
+        #mass-counter-container {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .counter-label {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        #hive-counter {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--hive-gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            background: var(--glass-panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* VIDEO CONTAINER */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            background: black;
+            border: 1px solid var(--neon-blue);
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+        }
+
+        /* CTA BUTTON */
+        .cta-btn {
+            background: transparent;
+            color: var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .cta-btn:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        /* REGISTRATION FORM (Hidden initially) */
+        #reg-form {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        label { font-size: 0.8rem; color: #aaa; }
+
+        input[type="text"] {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            color: white;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+            background: none;
+        }
+
+        /* HIVE NODE (The User's customized block) */
+        #my-node {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid white;
+            color: black; 
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 0 20px currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="mass-counter-container">
+        <div class="counter-label">Total Hive Mass</div>
+        <div id="hive-counter">1,042,891</div>
+        <div class="counter-label">Nodes Connected</div>
+    </div>
+
+    <div class="container">
+        
+        <div class="video-wrapper">
+            <div class="video-placeholder">
+                [ ANIMATION: HIVE BANKING & SUPERPOSITION EXPLAINED ]
+            </div>
+        </div>
+
+        <button id="cta-btn" class="cta-btn" onclick="revealForm()">Grow the Mass & Join the Hive</button>
+
+        <div id="reg-form">
+            <p style="font-size: 0.9rem; color: #ccc;">Create your anonymous Node ID. No Names. No Passwords.</p>
+            
+            <div>
+                <label>NODE ID (26 Characters Max)</label>
+                <input type="text" id="node-id" maxlength="26" placeholder="Ex: HIVE_OPERATOR_77X..." oninput="this.value = this.value.toUpperCase()">
+            </div>
+
+            <div>
+                <label>CUSTOMIZE HIVE FREQUENCY (Color)</label>
+                <input type="color" id="node-color" value="#00f3ff">
+            </div>
+
+            <button class="cta-btn" style="width: 100%; margin-top: 10px;" onclick="joinHive()">ACTIVATE NODE</button>
+        </div>
+
+        <div id="my-node">
+            <div>STATUS: CONNECTED</div>
+            <div id="display-id" style="font-size: 1.5rem; margin: 10px 0;"></div>
+            <div style="font-size: 0.8rem;">WAITING FOR IGNITION SEQUENCE...</div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- OPERATIONAL LOGIC ---
+
+        // 1. Simulate "Mass" Growth (Psychological Proof)
+        // In the real version, fetch this number from your database.
+        let currentMass = 1042891;
+        const counterElement = document.getElementById('hive-counter');
+
+        function updateCounter() {
+            // Adds random nodes to simulate active global growth
+            currentMass += Math.floor(Math.random() * 3); 
+            counterElement.innerText = currentMass.toLocaleString();
+        }
+        setInterval(updateCounter, 2000); // Updates every 2 seconds
+
+        // 2. UI Interaction
+        function revealForm() {
+            document.getElementById('cta-btn').style.display = 'none';
+            document.getElementById('reg-form').style.display = 'flex';
+        }
+
+        // 3. Join Logic
+        function joinHive() {
+            const nodeId = document.getElementById('node-id').value;
+            const nodeColor = document.getElementById('node-color').value;
+
+            if (nodeId.length < 3) {
+                alert("NODE ID TOO SHORT. IDENTIFY YOURSELF.");
+                return;
+            }
+
+            // Hiding Form
+            document.getElementById('reg-form').style.display = 'none';
+            
+            // Showing Success Node
+            const nodeDisplay = document.getElementById('my-node');
+            nodeDisplay.style.display = 'block';
+            nodeDisplay.style.backgroundColor = nodeColor; // Custom Background
+            nodeDisplay.style.color = getContrastColor(nodeColor); // Smart Text Color
+            nodeDisplay.style.boxShadow = `0 0 30px ${nodeColor}`; // Glowing Aura
+            
+            document.getElementById('display-id').innerText = nodeId;
+
+            // Trigger "Mass Surge" visual
+            currentMass += 1;
+            counterElement.innerText = currentMass.toLocaleString();
+            alert("WELCOME TO THE HIVE. YOUR MASS HAS BEEN ADDED TO THE AGGREGATE.");
+        }
+
+        // Helper: Ensures text is readable on custom background
+        function getContrastColor(hexcolor) {
+            hexcolor = hexcolor.replace("#", "");
+            var r = parseInt(hexcolor.substr(0,2),16);
+            var g = parseInt(hexcolor.substr(2,2),16);
+            var b = parseInt(hexcolor.substr(4,2),16);
+            var yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return (yiq >= 128) ? 'black' : 'white';
+        }
+    </script>
+</body>
+</html>
+index.html
+<div class="container" style="margin-top: 30px; border-color: var(--hive-gold);">
+    <h2 style="color: var(--hive-gold); text-transform: uppercase; letter-spacing: 2px;">The V4 Reactor Test</h2>
+    <p style="font-size: 0.9rem; color: #ccc;">PROVE THE PHYSICS: Remove the "Drag" (Bank Fees) to ignite the V4 Velocity.</p>
+
+    <div id="reactor-core" style="
+        width: 100px; 
+        height: 100px; 
+        border-radius: 50%; 
+        border: 5px solid #333; 
+        margin: 20px auto; 
+        box-shadow: 0 0 10px #333;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s ease;
+    ">
+        <div id="core-text" style="font-weight: bold; font-size: 1.5rem;">0%</div>
+    </div>
+
+    <div style="text-align: left; margin-top: 20px;">
+        <label>SYSTEM DRAG (BANK FEES): <span id="drag-val" style="color: red;">3.0%</span></label>
+        <input type="range" id="drag-slider" min="0" max="3" step="0.1" value="3" style="width: 100%; accent-color: red;" oninput="updatePhysics()">
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.7rem; color: #666;">
+            <span>YOUR SYSTEM (0%)</span>
+            <span>OLD BANKS (3%)</span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+        <div style="background: rgba(255,0,0,0.1); padding: 10px; border: 1px solid #550000;">
+            <div style="font-size: 0.7rem; color: #aaa;">WASTED WEALTH</div>
+            <div id="waste-display" style="font-size: 1.2rem; color: #ff4444;">$30,000</div>
+        </div>
+        <div style="background: rgba(0,255,0,0.1); padding: 10px; border: 1px solid #005500;">
+            <div style="font-size: 0.7rem; color: #aaa;">SYNTHETIC YIELD (JOBS)</div>
+            <div id="yield-display" style="font-size: 1.2rem; color: #00ff00;">$0</div>
+        </div>
+    </div>
+
+    <div id="physics-message" style="margin-top: 15px; font-style: italic; color: #888;">
+        System is clogged by fees. Velocity is dead.
+    </div>
+</div>
+
+<script>
+    function updatePhysics() {
+        // 1. GET INPUTS
+        let drag = parseFloat(document.getElementById('drag-slider').value);
+        let mass = 1000000; // Simulating $1M moving through the economy
+        
+        // 2. THE PHYSICS MATH (Simplified V4 Logic)
+        // If Drag is high, Velocity is low (1x). If Drag is 0, Velocity is V^4 (Simulated as 10x for visual).
+        let velocity = 1 + (3 - drag) * 3; // 3.0 drag = 1x speed. 0.0 drag = 10x speed.
+        
+        // waste = Mass * (Drag / 100) * velocity cycles
+        let waste = mass * (drag / 100) * 10; 
+        
+        // yield = (Mass * Velocity Multiplier) - Waste
+        let syntheticYield = (mass * velocity * 0.5) - waste;
+        if (syntheticYield < 0) syntheticYield = 0;
+
+        // 3. UPDATE VISUALS
+        document.getElementById('drag-val').innerText = drag.toFixed(1) + "%";
+        document.getElementById('waste-display').innerText = "$" + Math.floor(waste).toLocaleString();
+        document.getElementById('yield-display').innerText = "$" + Math.floor(syntheticYield).toLocaleString();
+
+        // 4. ANIMATE REACTOR CORE
+        const core = document.getElementById('reactor-core');
+        const coreText = document.getElementById('core-text');
+        
+        if (drag > 0.5) {
+            // THE "OLD SYSTEM" (Red, Slow, Stuck)
+            core.style.borderColor = "red";
+            core.style.boxShadow = "0 0 10px red";
+            core.style.animation = `spin ${5/velocity}s linear infinite`; // Slow spin
+            coreText.innerText = "DRAG";
+            coreText.style.color = "red";
+            document.getElementById('physics-message').innerText = "FATAL ERROR: Fees are eating the principal. No growth possible.";
+            document.getElementById('physics-message').style.color = "#ff4444";
+        } else {
+            // THE "HIVE SYSTEM" (Blue/Gold, Hyper-Speed)
+            core.style.borderColor = "#00f3ff";
+            core.style.boxShadow = "0 0 50px #00f3ff";
+            core.style.animation = `spin 0.2s linear infinite`; // Hyper speed
+            coreText.innerText = "V4";
+            coreText.style.color = "#00f3ff";
+            document.getElementById('physics-message').innerText = "OPTIMAL STATE: Friction removed. Infinite Velocity achieved.";
+            document.getElementById('physics-message').style.color = "#00ff00";
+        }
+    }
+    
+    // Add Spin Animation style dynamically
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(styleSheet);
+
+    // Initialize
+    updatePhysics();
+</script>
